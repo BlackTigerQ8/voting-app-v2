@@ -1,0 +1,19 @@
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-icon {
+  transition: color 0.2s ease-in-out;
+}
+
+.sidebar-link:hover .sidebar-icon {
+  color: currentColor;
+}
+
+[dir="rtl"] .MuiInputBase-root {
+  text-align: right;
+}
+
+[dir="rtl"] .MuiIconButton-root {
+  transform: scaleX(-1);
+}
