@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { tokens } from "../../theme";
-import { registerUser } from "../redux/userSlice";
+import { registerUser, initiateRegistration } from "../redux/userSlice";
 import { useTranslation } from "react-i18next";
 import Backdrop from "../components/Backdrop";
 import { useFormik } from "formik";
@@ -24,6 +24,7 @@ import {
   checkEmailExists,
   checkIdNumberExists,
 } from "../redux/usersSlice";
+import OTPVerification from "../components/OTPVerification";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
@@ -38,6 +39,8 @@ const Signup = () => {
   const navigate = useNavigate();
   const { status } = useSelector((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
+  const [showOTPDialog, setShowOTPDialog] = useState(false);
+  const [tempUserId, setTempUserId] = useState(null);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -50,21 +53,28 @@ const Signup = () => {
     idImage: null,
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values, { setSubmitting }) => {
     setIsLoading(true);
     const formDataToSend = new FormData();
-    Object.keys(formData).forEach((key) => {
-      formDataToSend.append(key, formData[key]);
+
+    // Append all form values to FormData
+    Object.keys(values).forEach((key) => {
+      formDataToSend.append(key, values[key]);
     });
 
     try {
-      await dispatch(registerUser(formDataToSend)).unwrap();
-      navigate("/login");
+      const result = await dispatch(
+        initiateRegistration(formDataToSend)
+      ).unwrap();
+      if (result.status === "Success") {
+        setTempUserId(result.tempUserId);
+        setShowOTPDialog(true);
+      }
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error("Registration initiation failed:", error);
     } finally {
       setIsLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -131,12 +141,16 @@ const Signup = () => {
       });
 
       try {
-        const result = await dispatch(registerUser(formDataToSend)).unwrap();
-        if (result) {
-          navigate("/login");
+        // Change this from registerUser to initiateRegistration
+        const result = await dispatch(
+          initiateRegistration(formDataToSend)
+        ).unwrap();
+        if (result.status === "Success") {
+          setTempUserId(result.tempUserId);
+          setShowOTPDialog(true);
         }
       } catch (error) {
-        console.error("Registration failed:", error);
+        console.error("Registration initiation failed:", error);
       } finally {
         setIsLoading(false);
         setSubmitting(false);
@@ -470,6 +484,11 @@ const Signup = () => {
           </Paper>
         </motion.div>
       </Container>
+      <OTPVerification
+        open={showOTPDialog}
+        tempUserId={tempUserId}
+        onClose={() => setShowOTPDialog(false)}
+      />
     </>
   );
 };

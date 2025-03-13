@@ -1,6 +1,8 @@
 const { User } = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { generateOTP, sendOTPEmail } = require("../utils/otpUtil");
+const { TempUser } = require("../models/tempUserModel");
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -385,6 +387,131 @@ const contactMessage = async (req, res) => {
   }
 };
 
+// @desc    Initiate registration with OTP
+// @route   POST /api/users/initiate-registration
+// @access  Public
+const initiateRegistration = async (req, res) => {
+  try {
+    const uploadedFile = req.file;
+    const filePath = uploadedFile ? uploadedFile.path : null;
+
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    // Create temporary user
+    const tempUser = await TempUser.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      phone: req.body.phone,
+      idNumber: req.body.idNumber,
+      password: req.body.password,
+      confirmPassword: req.body.confirmPassword,
+      idImage: filePath,
+      otp,
+      otpExpires,
+    });
+
+    try {
+      // Send OTP via email
+      await sendOTPEmail(req.body.email, otp);
+    } catch (error) {
+      console.error("Email sending failed:", error);
+      // Delete the temporary user if email fails
+      await TempUser.findByIdAndDelete(tempUser._id);
+      return res.status(500).json({
+        status: "Error",
+        message: "Failed to send verification code. Please try again.",
+      });
+    }
+
+    res.status(200).json({
+      status: "Success",
+      message: "Verification code sent to your email",
+      tempUserId: tempUser._id,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Error",
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Verify OTP and complete registration
+// @route   POST /api/users/verify-otp
+// @access  Public
+const verifyOTPAndRegister = async (req, res) => {
+  try {
+    const { tempUserId, otp } = req.body;
+
+    // Find temporary user
+    const tempUser = await TempUser.findById(tempUserId);
+    if (!tempUser) {
+      return res.status(404).json({
+        status: "Error",
+        message: "Registration session expired. Please try again.",
+      });
+    }
+
+    // Check if OTP is valid and not expired
+    if (tempUser.otp !== otp || tempUser.otpExpires < new Date()) {
+      return res.status(400).json({
+        status: "Error",
+        message: "Invalid or expired verification code.",
+      });
+    }
+
+    // Create actual user with the already hashed password
+    const newUser = new User({
+      firstName: tempUser.firstName,
+      lastName: tempUser.lastName,
+      email: tempUser.email,
+      phone: tempUser.phone,
+      idNumber: tempUser.idNumber,
+      password: tempUser.password, // Use the already hashed password
+      idImage: tempUser.idImage,
+      role: "Voter",
+    });
+
+    // Save without running the password hash middleware
+    await newUser.save({ validateBeforeSave: false });
+
+    // Delete temporary user
+    await TempUser.findByIdAndDelete(tempUserId);
+
+    res.status(201).json({
+      status: "Success",
+      message: "Registration completed successfully",
+      data: { user: newUser },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Error",
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Delete temporary user
+// @route   DELETE /api/users/temp/:id
+// @access  Public
+const deleteTempUser = async (req, res) => {
+  try {
+    await TempUser.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      status: "Success",
+      message: "Temporary user data cleaned up",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Error",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllusers,
   getUser,
@@ -397,4 +524,7 @@ module.exports = {
   loginUser,
   logoutUser,
   contactMessage,
+  initiateRegistration,
+  verifyOTPAndRegister,
+  deleteTempUser,
 };

@@ -20,16 +20,18 @@ const Sidebar = () => {
   const { t } = useTranslation();
   const colors = tokens(theme.palette.mode);
   const location = useLocation();
-  const currentUser = useSelector((state) => state.user.userInfo.user);
+  const currentUser = useSelector((state) => state.user.userInfo?.user);
 
   const links = currentUser
     ? [
         {
+          id: 1,
           title: t("dashboard"),
           icon: <DashboardIcon />,
           path: "/",
         },
         {
+          id: 2,
           title: t("kanban"),
           icon: <ViewKanbanIcon />,
           path: "/kanban",
@@ -39,6 +41,7 @@ const Sidebar = () => {
           },
         },
         {
+          id: 3,
           title: t("inbox"),
           icon: <InboxIcon />,
           path: "/inbox",
@@ -48,21 +51,25 @@ const Sidebar = () => {
           },
         },
         {
+          id: 4,
           title: t("users"),
           icon: <GroupIcon />,
           path: "/users",
         },
         {
+          id: 5,
           title: t("products"),
           icon: <ShoppingCartIcon />,
           path: "/products",
         },
         {
+          id: 6,
           title: t("login"),
           icon: <LoginIcon />,
           path: "/signin",
         },
         {
+          id: 7,
           title: t("signup"),
           icon: <PersonAddIcon />,
           path: "/signup",
@@ -70,16 +77,19 @@ const Sidebar = () => {
       ]
     : [
         {
+          id: 1,
           title: "Dashboard",
           icon: <DashboardIcon />,
           path: "/",
         },
         {
+          id: 2,
           title: "Login",
           icon: <LoginIcon />,
           path: "/login",
         },
         {
+          id: 3,
           title: "Sign Up",
           icon: <PersonAddIcon />,
           path: "/signup",
@@ -203,64 +213,38 @@ const Sidebar = () => {
         variants={containerVariants}
       >
         <div className="h-full px-3 py-14 overflow-y-auto">
-          <AnimatePresence>
-            <h2 className="text-2xl mb-10 font-bold text-center">
-              {currentUser ? t(currentUser.role) : "Guest"}
-            </h2>
-            <motion.ul
-              className="space-y-2 font-medium pt-14 sm:pt-0"
-              initial="closed"
-              animate="open"
-              exit="closed"
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="sidebar-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              {links.map((link, index) => {
-                const isActive = location.pathname === link.path;
+              <h2 className="text-2xl mb-10 font-bold text-center">
+                {currentUser ? t(currentUser.role) : "Guest"}
+              </h2>
+              <motion.ul
+                className="space-y-2 font-medium pt-14 sm:pt-0"
+                initial="closed"
+                animate="open"
+                exit="closed"
+              >
+                {links.map((link) => {
+                  const isActive = location.pathname === link.path;
 
-                return (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Link to={link.path} variants={linkVariants}>
-                      <motion.div
-                        className={`flex items-center p-2 rounded-lg group relative ${
-                          isActive ? "bg-opacity-20 bg-white" : ""
-                        }`}
-                        whileHover={{ scale: 1.02, x: 5 }}
-                        style={{
-                          color: isActive
-                            ? colors.accent.default
-                            : theme.palette.mode === "dark"
-                            ? colors.primary.default
-                            : colors.background.default,
-                        }}
-                      >
-                        {isActive && (
-                          <motion.div
-                            className="absolute left-0 w-1 h-full rounded-r"
-                            layoutId="activeIndicator"
-                            style={{ backgroundColor: colors.accent.default }}
-                          />
-                        )}
-                        <div className="flex items-center min-w-[24px]">
-                          <span
-                            className="w-5 h-5 transition duration-75"
-                            style={{
-                              color: isActive
-                                ? colors.accent.default
-                                : theme.palette.mode === "dark"
-                                ? colors.primary.default
-                                : colors.background.default,
-                            }}
-                          >
-                            {link.icon}
-                          </span>
-                        </div>
-
-                        <span
-                          className="flex-1 ms-3 whitespace-nowrap font-semibold"
+                  return (
+                    <motion.li
+                      key={link.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: link.id * 0.1 }}
+                    >
+                      <Link to={link.path} variants={linkVariants}>
+                        <motion.div
+                          className={`flex items-center p-2 rounded-lg group relative ${
+                            isActive ? "bg-opacity-20 bg-white" : ""
+                          }`}
+                          whileHover={{ scale: 1.02, x: 5 }}
                           style={{
                             color: isActive
                               ? colors.accent.default
@@ -269,15 +253,48 @@ const Sidebar = () => {
                               : colors.background.default,
                           }}
                         >
-                          {link.title}
-                        </span>
-                        {link.badge && renderBadge(link.badge)}
-                      </motion.div>
-                    </Link>
-                  </motion.li>
-                );
-              })}
-            </motion.ul>
+                          {isActive && (
+                            <motion.div
+                              className="absolute left-0 w-1 h-full rounded-r"
+                              layoutId={`activeIndicator-${link.id}`}
+                              style={{ backgroundColor: colors.accent.default }}
+                            />
+                          )}
+                          <div className="flex items-center min-w-[24px]">
+                            <span
+                              className="w-5 h-5 transition duration-75"
+                              style={{
+                                color: isActive
+                                  ? colors.accent.default
+                                  : theme.palette.mode === "dark"
+                                  ? colors.primary.default
+                                  : colors.background.default,
+                              }}
+                            >
+                              {link.icon}
+                            </span>
+                          </div>
+
+                          <span
+                            className="flex-1 ms-3 whitespace-nowrap font-semibold"
+                            style={{
+                              color: isActive
+                                ? colors.accent.default
+                                : theme.palette.mode === "dark"
+                                ? colors.primary.default
+                                : colors.background.default,
+                            }}
+                          >
+                            {link.title}
+                          </span>
+                          {link.badge && renderBadge(link.badge)}
+                        </motion.div>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+              </motion.ul>
+            </motion.div>
           </AnimatePresence>
         </div>
       </motion.aside>

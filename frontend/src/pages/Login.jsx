@@ -21,12 +21,21 @@ import {
   Typography,
   Container,
   Paper,
+  IconButton,
 } from "@mui/material";
+import TranslateIcon from "@mui/icons-material/Translate";
+import {
+  Menu as MuiMenu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
 
 const Login = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,6 +46,26 @@ const Login = () => {
     emailOrPhone: "",
     password: "",
   });
+
+  const [languageAnchor, setLanguageAnchor] = useState(null);
+
+  const languages = [
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "ar", name: "العربية", flag: "🇸🇦" },
+  ];
+
+  const handleLanguageClick = (event) => {
+    setLanguageAnchor(event.currentTarget);
+  };
+
+  const handleLanguageClose = () => {
+    setLanguageAnchor(null);
+  };
+
+  const handleLanguageSelect = (langCode) => {
+    i18n.changeLanguage(langCode);
+    handleLanguageClose();
+  };
 
   // Register the loading animation
   helix.register();
@@ -113,6 +142,62 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
         >
+          {/* Add Language Toggle Button */}
+          <Box sx={{ position: "absolute", top: 20, right: 20 }}>
+            <IconButton
+              onClick={handleLanguageClick}
+              sx={{
+                backgroundColor: colors.primary.light,
+                "&:hover": { backgroundColor: colors.primary.main },
+              }}
+            >
+              <TranslateIcon sx={{ color: colors.primary.default }} />
+            </IconButton>
+            <MuiMenu
+              anchorEl={languageAnchor}
+              open={Boolean(languageAnchor)}
+              onClose={handleLanguageClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                  mt: 1.5,
+                  backgroundColor: colors.primary.light,
+                },
+              }}
+            >
+              {languages.map((lang) => (
+                <MenuItem
+                  key={lang.code}
+                  onClick={() => handleLanguageSelect(lang.code)}
+                  sx={{
+                    color: colors.primary.default,
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "30px", color: "inherit" }}>
+                    {lang.flag}
+                  </ListItemIcon>
+                  <ListItemText primary={lang.name} />
+                  {i18n.language === lang.code && (
+                    <CheckIcon sx={{ ml: 1, color: colors.accent.default }} />
+                  )}
+                </MenuItem>
+              ))}
+            </MuiMenu>
+          </Box>
+
           <Paper
             elevation={3}
             sx={{
@@ -138,7 +223,7 @@ const Login = () => {
                 margin="normal"
                 id="emailOrPhone"
                 name="emailOrPhone"
-                label={t("email_placeholder")}
+                label={t("emailOrPhone_placeholder")}
                 value={formik.values.emailOrPhone}
                 onChange={formik.handleChange}
                 error={

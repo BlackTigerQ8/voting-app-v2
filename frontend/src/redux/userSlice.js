@@ -31,6 +31,55 @@ const dispatchToast = (message, type) => {
   });
 };
 
+// Thunk action for initiating registration with OTP
+export const initiateRegistration = createAsyncThunk(
+  "user/initiateRegistration",
+  async (userFormData) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/users/initiate-registration`,
+        userFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Thunk action for OTP verification and registration
+export const verifyOTPAndRegister = createAsyncThunk(
+  "user/verifyOTPAndRegister",
+  async ({ tempUserId, otp }) => {
+    try {
+      const response = await axios.post(`${API_URL}/users/verify-otp`, {
+        tempUserId,
+        otp,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Thunk action for cleanup temporary user
+export const cleanupTempUser = createAsyncThunk(
+  "user/cleanupTempUser",
+  async (tempUserId) => {
+    try {
+      await axios.delete(`${API_URL}/users/temp/${tempUserId}`);
+    } catch (error) {
+      console.error("Cleanup failed:", error);
+    }
+  }
+);
+
 // Thunk action for user registration
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -161,6 +210,35 @@ const userSlice = createSlice({
         state.error = action.error.message;
         dispatchToast(i18next.t(state.error), "error");
       })
+      ///////////////////
+      .addCase(initiateRegistration.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(initiateRegistration.fulfilled, (state) => {
+        state.status = "succeeded";
+        dispatchToast(i18next.t("otpSent"), "success");
+      })
+      .addCase(initiateRegistration.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+        dispatchToast(i18next.t(state.error), "error");
+      })
+
+      // Verify OTP and Register cases
+      .addCase(verifyOTPAndRegister.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(verifyOTPAndRegister.fulfilled, (state) => {
+        state.status = "succeeded";
+        dispatchToast(i18next.t("registrationSuccess"), "success");
+      })
+      .addCase(verifyOTPAndRegister.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+        dispatchToast(i18next.t(state.error), "error");
+      })
+
+      //////////////////
       .addCase(idImage.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.userIdImage = action.payload.file;

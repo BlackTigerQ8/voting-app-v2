@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { verifyOTPAndRegister } from "../redux/userSlice";
+import { cleanupTempUser, verifyOTPAndRegister } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -23,11 +23,6 @@ const OTPVerification = ({ open, tempUserId, onClose }) => {
   const handleVerify = async () => {
     if (!otp) {
       toast.error("Please enter the verification code");
-      return;
-    }
-
-    if (otp.length !== 6) {
-      toast.error("Please enter a valid 6-digit code");
       return;
     }
 
@@ -44,14 +39,13 @@ const OTPVerification = ({ open, tempUserId, onClose }) => {
         toast.success("Registration successful!");
         onClose();
         navigate("/login");
-      } else {
-        toast.error(result.message || "Verification failed");
       }
     } catch (error) {
       console.error("OTP verification failed:", error);
-      toast.error(
-        error.message || "Invalid verification code. Please try again."
-      );
+      toast.error(error.message || "Invalid verification code");
+      // Clean up temp user data on verification failure
+      await dispatch(cleanupTempUser(tempUserId));
+      onClose();
     } finally {
       setIsLoading(false);
     }
