@@ -34,21 +34,16 @@ const dispatchToast = (message, type) => {
 // Thunk action for user registration
 export const registerUser = createAsyncThunk(
   "user/registerUser",
-  async (userFormData, { getState }) => {
+  async (userFormData) => {
     try {
-      // Inside the code where you make API requests
-      const { token } = getState().user;
-
       const response = await axios.post(`${API_URL}/users`, userFormData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-
       return response.data;
     } catch (error) {
-      throw new Error(error.response.data.message || error.message);
+      throw new Error(error.response?.data?.message || error.message);
     }
   }
 );
@@ -58,9 +53,7 @@ export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (credentials, { rejectWithValue }) => {
     try {
-      console.log("Attempting login with:", credentials);
       const response = await axios.post(`${API_URL}/users/login`, credentials);
-      console.log("Login response:", response.data);
 
       // Check the response structure from your screenshot
       if (!response.data?.token) {

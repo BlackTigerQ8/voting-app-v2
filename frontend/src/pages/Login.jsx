@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { loginUser } from "../redux/userSlice";
 import { useTranslation } from "react-i18next";
@@ -11,6 +10,18 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { helix } from "ldrs"; // Add this import
 import { toast } from "react-toastify";
 import Backdrop from "../components/Backdrop";
+import { useFormik } from "formik";
+import * as yup from "yup";
+import {
+  useTheme,
+  TextField,
+  Button,
+  InputAdornment,
+  Box,
+  Typography,
+  Container,
+  Paper,
+} from "@mui/material";
 
 const Login = () => {
   const theme = useTheme();
@@ -36,6 +47,32 @@ const Login = () => {
       navigate("/");
     }
   }, [userInfo, token, navigate]);
+
+  const validationSchema = yup.object({
+    emailOrPhone: yup.string().required(t("emailOrPhoneRequired")),
+    password: yup.string().required(t("passwordRequired")),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      emailOrPhone: "",
+      password: "",
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      try {
+        const result = await dispatch(loginUser(values)).unwrap();
+        if (result.data && result.data.token) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Login failed:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,111 +107,132 @@ const Login = () => {
   return (
     <>
       <Backdrop isOpen={isLoading} />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: colors.background.default }}
-      >
-        <div
-          className="max-w-md w-full p-6 rounded-lg shadow-lg"
-          style={{ backgroundColor: colors.primary.light }}
+      <Container component="main" maxWidth="xs">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
         >
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="text-center mb-8"
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              backgroundColor: colors.primary.light,
+              mt: 8,
+            }}
           >
-            <h2
-              className="text-3xl font-bold"
-              style={{ color: colors.primary.default }}
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{ color: colors.primary.default, mb: 3 }}
             >
               {t("login")}
-            </h2>
-            <p
-              className="text-sm mt-2"
-              style={{ color: colors.secondary.default }}
-            >
-              {t("login_subtitle")}
-            </p>
-          </motion.div>
+            </Typography>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <div className="relative">
-                <PersonOutlinedIcon
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                  style={{ color: colors.primary.default }}
-                />
-                <input
-                  type="text"
-                  name="emailOrPhone"
-                  value={formData.emailOrPhone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, emailOrPhone: e.target.value })
-                  }
-                  className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
+            <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
+              <TextField
+                fullWidth
+                margin="normal"
+                id="emailOrPhone"
+                name="emailOrPhone"
+                label={t("email_placeholder")}
+                value={formik.values.emailOrPhone}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.emailOrPhone &&
+                  Boolean(formik.errors.emailOrPhone)
+                }
+                helperText={
+                  formik.touched.emailOrPhone && formik.errors.emailOrPhone
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  backgroundColor: colors.background.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
+                }}
+              />
+
+              <TextField
+                fullWidth
+                margin="normal"
+                id="password"
+                name="password"
+                type="password"
+                label={t("password_placeholder")}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
+                helperText={formik.touched.password && formik.errors.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  backgroundColor: colors.background.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
+                }}
+              />
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  backgroundColor: colors.accent.default,
+                  "&:hover": {
+                    backgroundColor: colors.accent.dark,
+                  },
+                }}
+                disabled={isLoading}
+              >
+                {isLoading ? t("loading") : t("login")}
+              </Button>
+
+              <Box sx={{ textAlign: "center", mt: 2 }}>
+                <Link
+                  to="/signup"
                   style={{
-                    backgroundColor: colors.background.default,
-                    borderColor: colors.primary.default,
+                    color: colors.accent.default,
+                    textDecoration: "none",
                   }}
-                  placeholder={t("email_placeholder")}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="relative">
-                <LockOutlinedIcon
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                  style={{ color: colors.primary.default }}
-                />
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colors.background.default,
-                    borderColor: colors.primary.default,
-                  }}
-                  placeholder={t("password_placeholder")}
-                  required
-                />
-              </div>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              className="w-full p-3 rounded-lg font-semibold"
-              style={{
-                backgroundColor: colors.accent.default,
-                color: colors.background.default,
-              }}
-              disabled={status === "loading"}
-            >
-              {status === "loading" ? t("loading") : t("login")}
-            </motion.button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <Link
-              to="/signup"
-              className="text-sm hover:underline"
-              style={{ color: colors.accent.default }}
-            >
-              {t("dont_have_account")} {t("signup")}
-            </Link>
-          </div>
-        </div>
-      </motion.div>
+                >
+                  <Typography variant="body2">
+                    {t("dont_have_account")} {t("signup")}
+                  </Typography>
+                </Link>
+              </Box>
+            </Box>
+          </Paper>
+        </motion.div>
+      </Container>
     </>
   );
 };

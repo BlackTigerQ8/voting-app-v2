@@ -8,6 +8,9 @@ const {
   loginUser,
   logoutUser,
   contactMessage,
+  checkEmailExists,
+  checkPhoneExists,
+  checkIdNumberExists,
 } = require("../controllers/userController");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
 const { profileImageUpload } = require("./uploadRoutes");
@@ -18,6 +21,9 @@ const router = express.Router();
 router.post("/login", loginUser);
 router.post("/contact", contactMessage);
 router.post("/", profileImageUpload.single("idImage"), createUser);
+router.get("/check-email/:email", checkEmailExists);
+router.get("/check-phone/:phone", checkPhoneExists);
+router.get("/check-id/:idNumber", checkIdNumberExists);
 
 // Protected routes (authentication needed)
 router.get("/", protect, getAllusers);

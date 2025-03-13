@@ -38,14 +38,8 @@ export const checkPhoneExists = createAsyncThunk(
   "users/checkPhoneExists",
   async (phone) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const users = response.data.data.users;
-      return users.some((user) => user.phone === phone);
+      const response = await axios.get(`${API_URL}/users/check-phone/${phone}`);
+      return response.data.exists;
     } catch (error) {
       console.error("Error checking phone:", error);
       return false;
@@ -57,16 +51,27 @@ export const checkEmailExists = createAsyncThunk(
   "users/checkEmailExists",
   async (email) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const users = response.data.data.users;
-      return users.some((user) => user.email === email);
+      const response = await axios.get(`${API_URL}/users/check-email/${email}`);
+      return response.data.exists;
     } catch (error) {
       console.error("Error checking email:", error);
+      return false;
+    }
+  }
+);
+
+export const checkIdNumberExists = createAsyncThunk(
+  "users/checkIdNumberExists",
+  async (idNumber) => {
+    try {
+      // Convert to string in case it's a number
+      const idNumberString = idNumber.toString();
+      const response = await axios.get(
+        `${API_URL}/users/check-id/${idNumberString}`
+      );
+      return response.data.exists;
+    } catch (error) {
+      console.error("Error checking idNumber:", error);
       return false;
     }
   }

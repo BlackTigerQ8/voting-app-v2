@@ -2,16 +2,33 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { registerUser } from "../redux/userSlice";
 import { useTranslation } from "react-i18next";
+import Backdrop from "../components/Backdrop";
+import { useFormik } from "formik";
+import * as yup from "yup";
+import {
+  useTheme,
+  TextField,
+  Button,
+  InputAdornment,
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Grid,
+} from "@mui/material";
+import {
+  checkPhoneExists,
+  checkEmailExists,
+  checkIdNumberExists,
+} from "../redux/usersSlice";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
-import Backdrop from "../components/Backdrop";
 
 const Signup = () => {
   const theme = useTheme();
@@ -51,244 +68,408 @@ const Signup = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, idImage: e.target.files[0] });
+  const validationSchema = yup.object().shape({
+    firstName: yup.string().required(t("firstNameRequired")),
+    lastName: yup.string().required(t("lastNameRequired")),
+    phone: yup
+      .string()
+      .matches(/^\d{8}$/, t("phoneFormat"))
+      .required(t("phoneRequired"))
+      .test("unique", t("phoneAlreadyExists"), async function (value) {
+        if (!value) return true;
+        const result = await dispatch(checkPhoneExists(value));
+        return !result.payload;
+      }),
+    email: yup
+      .string()
+      .email(t("invalidEmail"))
+      .required(t("emailRequired"))
+      .test("unique", t("emailAlreadyExists"), async function (value) {
+        if (!value) return true;
+        const result = await dispatch(checkEmailExists(value));
+        return !result.payload;
+      }),
+    idNumber: yup
+      .string()
+      .matches(/^\d{12}$/, t("idNumberFormat"))
+      .required(t("idNumberRequired"))
+      .test("unique", t("idNumberAlreadyExists"), async function (value) {
+        if (!value) return true;
+        const result = await dispatch(checkIdNumberExists(value));
+        return !result.payload;
+      }),
+    password: yup
+      .string()
+      .min(6, t("passwordMinLength"))
+      .required(t("passwordRequired")),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password"), null], t("passwordsMustMatch"))
+      .required(t("confirmPasswordRequired")),
+    idImage: yup.mixed().required(t("idImageRequired")),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      idNumber: "",
+      password: "",
+      confirmPassword: "",
+      idImage: null,
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      setIsLoading(true);
+      const formDataToSend = new FormData();
+
+      // Append all form values to FormData
+      Object.keys(values).forEach((key) => {
+        formDataToSend.append(key, values[key]);
+      });
+
+      try {
+        const result = await dispatch(registerUser(formDataToSend)).unwrap();
+        if (result) {
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Registration failed:", error);
+      } finally {
+        setIsLoading(false);
+        setSubmitting(false);
+      }
+    },
+  });
+
+  // Update file input handler to work with formik
+  const handleFileChange = (event) => {
+    formik.setFieldValue("idImage", event.currentTarget.files[0]);
   };
 
   return (
     <>
       <Backdrop isOpen={isLoading} />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="min-h-screen flex items-center justify-center py-12"
-        style={{ backgroundColor: colors.background.default }}
-      >
-        <div
-          className="max-w-md w-full p-6 rounded-lg shadow-lg"
-          style={{ backgroundColor: colors.primary.light }}
+      <Container component="main" maxWidth="sm">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
         >
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="text-center mb-8"
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              backgroundColor: colors.primary.light,
+              mt: 8,
+              mb: 8,
+            }}
           >
-            <h2
-              className="text-3xl font-bold"
-              style={{ color: colors.primary.default }}
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{ color: colors.primary.default, mb: 3 }}
             >
               {t("signup")}
-            </h2>
-            <p
-              className="text-sm mt-2"
-              style={{ color: colors.secondary.default }}
-            >
-              {t("signup_subtitle")}
-            </p>
-          </motion.div>
+            </Typography>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative">
-                <PersonOutlinedIcon
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                  style={{ color: colors.primary.default }}
-                />
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colors.background.default,
-                    borderColor: colors.primary.default,
-                  }}
-                  placeholder={t("first_name")}
-                  required
-                />
-              </div>
-              <div className="relative">
-                <PersonOutlinedIcon
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                  style={{ color: colors.primary.default }}
-                />
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colors.background.default,
-                    borderColor: colors.primary.default,
-                  }}
-                  placeholder={t("last_name")}
-                  required
-                />
-              </div>
-            </div>
+            <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    id="firstName"
+                    name="firstName"
+                    label={t("first_name")}
+                    value={formik.values.firstName}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.firstName &&
+                      Boolean(formik.errors.firstName)
+                    }
+                    helperText={
+                      formik.touched.firstName && formik.errors.firstName
+                    }
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonOutlinedIcon
+                            sx={{ color: colors.primary.default }}
+                          />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      backgroundColor: colors.background.default,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: colors.primary.default,
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    id="lastName"
+                    name="lastName"
+                    label={t("last_name")}
+                    value={formik.values.lastName}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.lastName && Boolean(formik.errors.lastName)
+                    }
+                    helperText={
+                      formik.touched.lastName && formik.errors.lastName
+                    }
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonOutlinedIcon
+                            sx={{ color: colors.primary.default }}
+                          />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      backgroundColor: colors.background.default,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: colors.primary.default,
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+              </Grid>
 
-            {/* Email and Phone */}
-            <div className="relative">
-              <EmailOutlinedIcon
-                className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                style={{ color: colors.primary.default }}
-              />
-              <input
-                type="email"
+              {/* Email Field */}
+              <TextField
+                fullWidth
+                margin="normal"
+                id="email"
                 name="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: colors.background.default,
-                  borderColor: colors.primary.default,
+                label={t("email")}
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
                 }}
-                placeholder={t("email")}
-                required
+                sx={{
+                  backgroundColor: colors.background.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
+                }}
               />
-            </div>
 
-            <div className="relative">
-              <PhoneOutlinedIcon
-                className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                style={{ color: colors.primary.default }}
-              />
-              <input
-                type="tel"
+              {/* Phone Field */}
+              <TextField
+                fullWidth
+                margin="normal"
+                id="phone"
                 name="phone"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: colors.background.default,
-                  borderColor: colors.primary.default,
+                label={t("phone")}
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                error={formik.touched.phone && Boolean(formik.errors.phone)}
+                helperText={formik.touched.phone && formik.errors.phone}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
                 }}
-                placeholder={t("phone")}
-                required
+                sx={{
+                  backgroundColor: colors.background.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
+                }}
               />
-            </div>
 
-            {/* ID Number */}
-            <div className="relative">
-              <BadgeOutlinedIcon
-                className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                style={{ color: colors.primary.default }}
-              />
-              <input
-                type="text"
+              {/* ID Number Field */}
+              <TextField
+                fullWidth
+                margin="normal"
+                id="idNumber"
                 name="idNumber"
-                value={formData.idNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, idNumber: e.target.value })
+                label={t("idNumber")}
+                value={formik.values.idNumber}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.idNumber && Boolean(formik.errors.idNumber)
                 }
-                className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: colors.background.default,
-                  borderColor: colors.primary.default,
+                helperText={formik.touched.idNumber && formik.errors.idNumber}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <BadgeOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
                 }}
-                placeholder={t("idNumber")}
-                required
+                sx={{
+                  backgroundColor: colors.background.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
+                }}
               />
-            </div>
 
-            {/* Password Fields */}
-            <div className="relative">
-              <LockOutlinedIcon
-                className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                style={{ color: colors.primary.default }}
-              />
-              <input
-                type="password"
+              {/* Password Fields */}
+              <TextField
+                fullWidth
+                margin="normal"
+                id="password"
                 name="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: colors.background.default,
-                  borderColor: colors.primary.default,
-                }}
-                placeholder={t("password")}
-                required
-              />
-            </div>
-
-            <div className="relative">
-              <LockOutlinedIcon
-                className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                style={{ color: colors.primary.default }}
-              />
-              <input
                 type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
+                label={t("password")}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
                 }
-                className="w-full p-3 pl-12 rounded-lg border focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: colors.background.default,
-                  borderColor: colors.primary.default,
+                helperText={formik.touched.password && formik.errors.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
                 }}
-                placeholder={t("confirm_password")}
-                required
-              />
-            </div>
-
-            {/* ID Image Upload */}
-            <div className="relative">
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
-                style={{
+                sx={{
                   backgroundColor: colors.background.default,
-                  borderColor: colors.primary.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
                 }}
-                accept="image/*"
-                required
               />
-            </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              className="w-full p-3 rounded-lg font-semibold"
-              style={{
-                backgroundColor: colors.accent.default,
-                color: colors.background.default,
-              }}
-              disabled={status === "loading"}
-            >
-              {status === "loading" ? t("creatingUser") : t("signup")}
-            </motion.button>
-          </form>
+              <TextField
+                fullWidth
+                margin="normal"
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                label={t("confirm_password")}
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.confirmPassword &&
+                  Boolean(formik.errors.confirmPassword)
+                }
+                helperText={
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon
+                        sx={{ color: colors.primary.default }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  backgroundColor: colors.background.default,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: colors.primary.default,
+                    },
+                  },
+                }}
+              />
 
-          <div className="mt-6 text-center">
-            <Link
-              to="/login"
-              className="text-sm hover:underline"
-              style={{ color: colors.accent.default }}
-            >
-              {t("already_have_account")} {t("login")}
-            </Link>
-          </div>
-        </div>
-      </motion.div>
+              {/* File Upload */}
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                sx={{
+                  mt: 2,
+                  mb: 2,
+                  borderColor: colors.primary.default,
+                  color: colors.primary.default,
+                }}
+              >
+                {t("upload_id_image")}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </Button>
+              {formik.values.idImage && (
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  {formik.values.idImage.name}
+                </Typography>
+              )}
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  backgroundColor: colors.accent.default,
+                  "&:hover": {
+                    backgroundColor: colors.accent.dark,
+                  },
+                }}
+                disabled={isLoading}
+              >
+                {isLoading ? t("creatingUser") : t("signup")}
+              </Button>
+
+              <Box sx={{ textAlign: "center", mt: 2 }}>
+                <Link
+                  to="/login"
+                  style={{
+                    color: colors.accent.default,
+                    textDecoration: "none",
+                  }}
+                >
+                  <Typography variant="body2">
+                    {t("already_have_account")} {t("login")}
+                  </Typography>
+                </Link>
+              </Box>
+            </Box>
+          </Paper>
+        </motion.div>
+      </Container>
     </>
   );
 };

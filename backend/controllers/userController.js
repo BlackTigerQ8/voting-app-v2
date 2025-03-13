@@ -1,7 +1,6 @@
 const { User } = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -141,6 +140,45 @@ const createUser = async (req, res) => {
       status: "Error",
       message: error.message,
     });
+  }
+};
+
+// @desc    Check if email exists
+// @route   GET /api/users/check-email/:email
+// @access  Public
+const checkEmailExists = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    res.json({ exists: !!user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Check if phone exists
+// @route   GET /api/users/check-phone/:phone
+// @access  Public
+const checkPhoneExists = async (req, res) => {
+  try {
+    const user = await User.findOne({ phone: req.params.phone });
+    res.json({ exists: !!user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Check if idNumber exists
+// @route   GET /api/users/check-id/:idNumber
+// @access  Public
+const checkIdNumberExists = async (req, res) => {
+  try {
+    const { idNumber } = req.params;
+    // Convert the parameter to a number if your model expects a number
+    const numberIdNumber = Number(idNumber);
+    const user = await User.findOne({ idNumber: numberIdNumber });
+    res.json({ exists: !!user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -351,6 +389,9 @@ module.exports = {
   getAllusers,
   getUser,
   createUser,
+  checkEmailExists,
+  checkPhoneExists,
+  checkIdNumberExists,
   updateUser,
   deleteUser,
   loginUser,
