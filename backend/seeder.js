@@ -20,7 +20,7 @@ const createAdmin = async () => {
       firstName: "Abdullah",
       lastName: "Alenezi",
       phone: "66850080",
-      dateOfBirth: "1995-07-21",
+      idNumber: "295072100108",
       email: "admin@gmail.com",
       password: "123123",
       confirmPassword: "123123",

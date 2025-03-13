@@ -142,62 +142,6 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
         >
-          {/* Add Language Toggle Button */}
-          <Box sx={{ position: "absolute", top: 20, right: 20 }}>
-            <IconButton
-              onClick={handleLanguageClick}
-              sx={{
-                backgroundColor: colors.primary.light,
-                "&:hover": { backgroundColor: colors.primary.main },
-              }}
-            >
-              <TranslateIcon sx={{ color: colors.primary.default }} />
-            </IconButton>
-            <MuiMenu
-              anchorEl={languageAnchor}
-              open={Boolean(languageAnchor)}
-              onClose={handleLanguageClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              PaperProps={{
-                elevation: 0,
-                sx: {
-                  overflow: "visible",
-                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                  mt: 1.5,
-                  backgroundColor: colors.primary.light,
-                },
-              }}
-            >
-              {languages.map((lang) => (
-                <MenuItem
-                  key={lang.code}
-                  onClick={() => handleLanguageSelect(lang.code)}
-                  sx={{
-                    color: colors.primary.default,
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: "30px", color: "inherit" }}>
-                    {lang.flag}
-                  </ListItemIcon>
-                  <ListItemText primary={lang.name} />
-                  {i18n.language === lang.code && (
-                    <CheckIcon sx={{ ml: 1, color: colors.accent.default }} />
-                  )}
-                </MenuItem>
-              ))}
-            </MuiMenu>
-          </Box>
-
           <Paper
             elevation={3}
             sx={{
@@ -209,13 +153,78 @@ const Login = () => {
               mt: 8,
             }}
           >
-            <Typography
-              component="h1"
-              variant="h4"
-              sx={{ color: colors.primary.default, mb: 3 }}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                mb: 3,
+                position: "relative",
+              }}
             >
-              {t("login")}
-            </Typography>
+              <Typography
+                component="h1"
+                variant="h4"
+                sx={{ color: colors.primary.default }}
+              >
+                {t("login")}
+              </Typography>
+              <IconButton
+                onClick={handleLanguageClick}
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  backgroundColor: "transparent",
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                }}
+              >
+                <TranslateIcon sx={{ color: colors.primary.default }} />
+              </IconButton>
+              <MuiMenu
+                anchorEl={languageAnchor}
+                open={Boolean(languageAnchor)}
+                onClose={handleLanguageClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    mt: 1.5,
+                    backgroundColor: colors.primary.light,
+                  },
+                }}
+              >
+                {languages.map((lang) => (
+                  <MenuItem
+                    key={lang.code}
+                    onClick={() => handleLanguageSelect(lang.code)}
+                    sx={{
+                      color: colors.primary.default,
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: "30px", color: "inherit" }}>
+                      {lang.flag}
+                    </ListItemIcon>
+                    <ListItemText primary={lang.name} />
+                    {i18n.language === lang.code && (
+                      <CheckIcon sx={{ ml: 1, color: colors.accent.default }} />
+                    )}
+                  </MenuItem>
+                ))}
+              </MuiMenu>
+            </Box>
 
             <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
               <TextField
@@ -223,7 +232,8 @@ const Login = () => {
                 margin="normal"
                 id="emailOrPhone"
                 name="emailOrPhone"
-                label={t("emailOrPhone_placeholder")}
+                // label={t("emailOrPhone_placeholder")}
+                placeholder={t("emailOrPhone_placeholder")}
                 value={formik.values.emailOrPhone}
                 onChange={formik.handleChange}
                 error={
@@ -258,7 +268,8 @@ const Login = () => {
                 id="password"
                 name="password"
                 type="password"
-                label={t("password_placeholder")}
+                // label={t("password_placeholder")}
+                placeholder={t("password_placeholder")}
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 error={

@@ -18,6 +18,11 @@ import {
   Container,
   Paper,
   Grid,
+  IconButton,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Menu as MuiMenu,
 } from "@mui/material";
 import {
   checkPhoneExists,
@@ -30,17 +35,39 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import TranslateIcon from "@mui/icons-material/Translate";
+import CheckIcon from "@mui/icons-material/Check";
 
 const Signup = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status } = useSelector((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
   const [showOTPDialog, setShowOTPDialog] = useState(false);
   const [tempUserId, setTempUserId] = useState(null);
+
+  const [languageAnchor, setLanguageAnchor] = useState(null);
+
+  const languages = [
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "ar", name: "العربية", flag: "🇸🇦" },
+  ];
+
+  const handleLanguageClick = (event) => {
+    setLanguageAnchor(event.currentTarget);
+  };
+
+  const handleLanguageClose = () => {
+    setLanguageAnchor(null);
+  };
+
+  const handleLanguageSelect = (langCode) => {
+    i18n.changeLanguage(langCode);
+    handleLanguageClose();
+  };
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -184,13 +211,78 @@ const Signup = () => {
               mb: 8,
             }}
           >
-            <Typography
-              component="h1"
-              variant="h4"
-              sx={{ color: colors.primary.default, mb: 3 }}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                mb: 3,
+                position: "relative",
+              }}
             >
-              {t("signup")}
-            </Typography>
+              <Typography
+                component="h1"
+                variant="h4"
+                sx={{ color: colors.primary.default }}
+              >
+                {t("login")}
+              </Typography>
+              <IconButton
+                onClick={handleLanguageClick}
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  backgroundColor: "transparent",
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                }}
+              >
+                <TranslateIcon sx={{ color: colors.primary.default }} />
+              </IconButton>
+              <MuiMenu
+                anchorEl={languageAnchor}
+                open={Boolean(languageAnchor)}
+                onClose={handleLanguageClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    mt: 1.5,
+                    backgroundColor: colors.primary.light,
+                  },
+                }}
+              >
+                {languages.map((lang) => (
+                  <MenuItem
+                    key={lang.code}
+                    onClick={() => handleLanguageSelect(lang.code)}
+                    sx={{
+                      color: colors.primary.default,
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: "30px", color: "inherit" }}>
+                      {lang.flag}
+                    </ListItemIcon>
+                    <ListItemText primary={lang.name} />
+                    {i18n.language === lang.code && (
+                      <CheckIcon sx={{ ml: 1, color: colors.accent.default }} />
+                    )}
+                  </MenuItem>
+                ))}
+              </MuiMenu>
+            </Box>
 
             <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
               <Grid container spacing={2}>
@@ -199,7 +291,8 @@ const Signup = () => {
                     fullWidth
                     id="firstName"
                     name="firstName"
-                    label={t("first_name")}
+                    // label={t("first_name")}
+                    placeholder={t("first_name")}
                     value={formik.values.firstName}
                     onChange={formik.handleChange}
                     error={
@@ -233,7 +326,8 @@ const Signup = () => {
                     fullWidth
                     id="lastName"
                     name="lastName"
-                    label={t("last_name")}
+                    // label={t("last_name")}
+                    placeholder={t("last_name")}
                     value={formik.values.lastName}
                     onChange={formik.handleChange}
                     error={
@@ -269,7 +363,8 @@ const Signup = () => {
                 margin="normal"
                 id="email"
                 name="email"
-                label={t("email")}
+                // label={t("email")}
+                placeholder={t("email")}
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 error={formik.touched.email && Boolean(formik.errors.email)}
@@ -299,7 +394,8 @@ const Signup = () => {
                 margin="normal"
                 id="phone"
                 name="phone"
-                label={t("phone")}
+                // label={t("phone")}
+                placeholder={t("phone")}
                 value={formik.values.phone}
                 onChange={formik.handleChange}
                 error={formik.touched.phone && Boolean(formik.errors.phone)}
@@ -329,7 +425,8 @@ const Signup = () => {
                 margin="normal"
                 id="idNumber"
                 name="idNumber"
-                label={t("idNumber")}
+                // label={t("idNumber")}
+                placeholder={t("idNumber")}
                 value={formik.values.idNumber}
                 onChange={formik.handleChange}
                 error={
@@ -362,7 +459,8 @@ const Signup = () => {
                 id="password"
                 name="password"
                 type="password"
-                label={t("password")}
+                // label={t("password")}
+                placeholder={t("password")}
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 error={
@@ -394,7 +492,8 @@ const Signup = () => {
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
-                label={t("confirm_password")}
+                // label={t("confirm_password")}
+                placeholder={t("confirm_password")}
                 value={formik.values.confirmPassword}
                 onChange={formik.handleChange}
                 error={
