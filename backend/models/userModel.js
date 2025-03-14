@@ -84,8 +84,8 @@ userSchema.pre("save", async function (next) {
   this.confirmPassword = undefined;
 
   // To remove commas from identification number
-  if (this.identification && typeof this.identification === "string") {
-    this.identification = this.identification.replace(/,/g, "");
+  if (this.idNumber && typeof this.idNumber === "string") {
+    this.idNumber = this.idNumber.replace(/,/g, "");
   }
   next();
 });

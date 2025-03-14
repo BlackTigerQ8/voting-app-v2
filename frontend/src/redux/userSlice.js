@@ -71,11 +71,13 @@ export const verifyOTPAndRegister = createAsyncThunk(
 // Thunk action for cleanup temporary user
 export const cleanupTempUser = createAsyncThunk(
   "user/cleanupTempUser",
-  async (tempUserId) => {
+  async (tempUserId, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/users/temp/${tempUserId}`);
+      await api.delete(`/users/temp/${tempUserId}`);
+      return true;
     } catch (error) {
       console.error("Cleanup failed:", error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

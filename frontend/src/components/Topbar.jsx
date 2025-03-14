@@ -39,8 +39,8 @@ const Topbar = () => {
   const currentUser = useSelector((state) => state.user.userInfo);
 
   const languages = [
-    { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "ar", name: "العربية", flag: "🇸🇦" },
+    { code: "en", name: "English", flag: "en" },
+    { code: "ar", name: "العربية", flag: "ar" },
     // Add more languages as needed
   ];
 
@@ -72,11 +72,11 @@ const Topbar = () => {
     setLogoutModalOpen(false);
   };
 
-  const menuVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
-  };
+  // const menuVariants = {
+  //   hidden: { opacity: 0, y: -10 },
+  //   visible: { opacity: 1, y: 0 },
+  //   exit: { opacity: 0, y: -10 },
+  // };
 
   return (
     <motion.div
@@ -84,6 +84,10 @@ const Topbar = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
       className="flex justify-end p-2 relative"
+      style={{
+        backgroundColor: colors.black[500],
+        borderBottom: `1px solid ${colors.grey[500]}`,
+      }}
     >
       <motion.div
         initial={{ opacity: 0 }}
@@ -97,7 +101,8 @@ const Topbar = () => {
             onClick={handleLanguageClick}
             className="flex items-center"
             sx={{
-              "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+              color: colors.white[500],
+              "&:hover": { backgroundColor: `${colors.grey[500]}20` },
             }}
           >
             <TranslateIcon />
@@ -120,18 +125,10 @@ const Topbar = () => {
             PaperProps={{
               elevation: 0,
               sx: {
-                overflow: "visible",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                mt: 1.5,
-                backgroundColor:
-                  theme.palette.mode === "dark"
-                    ? colors.primary.light
-                    : colors.primary.default,
-                "& .MuiAvatar-root": {
-                  width: 32,
-                  height: 32,
-                  ml: -0.5,
-                  mr: 1,
+                backgroundColor: colors.black[500],
+                border: `1px solid ${colors.grey[500]}`,
+                "& .MuiMenuItem-root": {
+                  color: colors.white[500],
                 },
               },
             }}
@@ -141,12 +138,9 @@ const Topbar = () => {
                 key={lang.code}
                 onClick={() => handleLanguageSelect(lang.code)}
                 sx={{
-                  color:
-                    theme.palette.mode === "dark"
-                      ? colors.primary.default
-                      : colors.background.default,
+                  color: colors.white[500],
                   "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: `${colors.grey[500]}20`,
                   },
                 }}
               >
@@ -155,20 +149,18 @@ const Topbar = () => {
                 </ListItemIcon>
                 <ListItemText primary={lang.name} />
                 {i18n.language === lang.code && (
-                  <CheckIcon
-                    sx={{
-                      ml: 1,
-                      color: colors.accent.default,
-                    }}
-                  />
+                  <CheckIcon sx={{ ml: 1, color: colors.yellow[500] }} />
                 )}
               </MenuItem>
             ))}
           </MuiMenu>
         </div>
 
-        {/* Rest of your icons */}
-        <IconButton onClick={colorMode.toggleColorMode}>
+        {/* Theme Toggle */}
+        <IconButton
+          onClick={colorMode.toggleColorMode}
+          sx={{ color: colors.yellow[500] }}
+        >
           {theme.palette.mode === "dark" ? (
             <DarkModeOutlinedIcon />
           ) : (
@@ -176,25 +168,40 @@ const Topbar = () => {
           )}
         </IconButton>
 
-        <IconButton>
+        {/* Notification Icon */}
+        {/* <IconButton sx={{ color: colors.white[500] }}>
           <NotificationsOutlinedIcon />
-        </IconButton>
+        </IconButton> */}
 
-        <IconButton onClick={() => navigate("/settings")}>
+        {/* Settings Icon */}
+        <IconButton
+          onClick={() => navigate("/settings")}
+          sx={{ color: colors.white[500] }}
+        >
           <SettingsOutlinedIcon />
         </IconButton>
 
+        {/* Profile/Login Icons */}
         {currentUser ? (
           <>
-            <IconButton onClick={() => navigate("/profile")}>
+            <IconButton
+              onClick={() => navigate(`/profile/${currentUser.user._id}`)}
+              sx={{ color: colors.white[500] }}
+            >
               <PersonOutlinedIcon />
             </IconButton>
-            <IconButton onClick={handleLogoutClick}>
+            <IconButton
+              onClick={handleLogoutClick}
+              sx={{ color: colors.white[500] }}
+            >
               <LogoutIcon />
             </IconButton>
           </>
         ) : (
-          <IconButton onClick={() => navigate("/login")}>
+          <IconButton
+            onClick={() => navigate("/login")}
+            sx={{ color: colors.white[500] }}
+          >
             <PersonOutlinedIcon />
           </IconButton>
         )}

@@ -29,28 +29,32 @@ const LineChart = () => {
     <ResponsiveContainer width="100%" height="100%">
       <RechartsLineChart
         data={data}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
+        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
+        <CartesianGrid strokeDasharray="3 3" stroke={colors.grey[500]} />
+        <XAxis dataKey="name" stroke={colors.white[500]} />
+        <YAxis stroke={colors.white[500]} />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: colors.black[500],
+            border: `1px solid ${colors.grey[500]}`,
+          }}
+        />
+        <Legend
+          formatter={(value) => (
+            <span style={{ color: colors.white[500] }}>{value}</span>
+          )}
+        />
         <Line
           type="monotone"
           dataKey="pv"
-          stroke={colors.primary.default}
+          stroke={colors.yellow[500]}
           strokeWidth={2}
         />
         <Line
           type="monotone"
           dataKey="uv"
-          stroke={colors.accent.default}
+          stroke={colors.grey[500]}
           strokeWidth={2}
         />
       </RechartsLineChart>

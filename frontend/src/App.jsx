@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import "./App.css";
+import { toast, ToastContainer } from "react-toastify";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { useMode, ColorModeContext } from "../theme";
@@ -23,6 +24,11 @@ import Topbar from "./components/Topbar";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
+import Users from "./pages/Users";
+import Athletes from "./pages/Athletes";
+import AthleteForm from "./pages/AthleteForm";
+import AthleteProfile from "./pages/AthleteProfile";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   // States
@@ -32,6 +38,7 @@ function App() {
   // Selectors
   const { userInfo, token } = useSelector((state) => state.user);
   const isAuthenticated = Boolean(token && userInfo);
+  const userRole = userInfo?.role;
 
   helix.register();
   const navigate = useNavigate();
@@ -147,26 +154,120 @@ function App() {
                     path="/"
                     element={
                       isAuthenticated ? (
+                        userRole === "Voter" ? (
+                          <Navigate to={`/profile/${userInfo._id}`} replace />
+                        ) : (
+                          <motion.div
+                            key="home"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Home />
+                          </motion.div>
+                        )
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/users"
+                    element={
+                      isAuthenticated && userRole !== "Voter" ? (
                         <motion.div
-                          key="home"
+                          key="users"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -20 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <Home />
+                          <Users />
                         </motion.div>
                       ) : (
                         <Navigate to="/login" replace />
                       )
                     }
                   />
-                  {/* Add other protected routes with similar pattern */}
+                  <Route
+                    path="/athletes"
+                    element={
+                      isAuthenticated && userRole !== "Voter" ? (
+                        <motion.div
+                          key="athletes"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Athletes />
+                        </motion.div>
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/athlete-form"
+                    element={
+                      isAuthenticated && userRole !== "Voter" ? (
+                        <motion.div
+                          key="athlete-form"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <AthleteForm />
+                        </motion.div>
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/athlete-profile/:id"
+                    element={
+                      isAuthenticated && userRole !== "Voter" ? (
+                        <motion.div
+                          key="athlete-profile"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <AthleteProfile />
+                        </motion.div>
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/profile/:id"
+                    element={
+                      isAuthenticated ? (
+                        <motion.div
+                          key="user-profile"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <UserProfile />
+                        </motion.div>
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
                 </Routes>
               </AnimatePresence>
             </div>
           </motion.main>
         </motion.div>
+        <ToastContainer />
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

@@ -10,7 +10,10 @@ const Card = ({ className = "", children }) => {
   return (
     <div
       className={`flex items-center justify-center rounded-lg shadow-sm ${className}`}
-      style={{ backgroundColor: colors.background.default }}
+      style={{
+        backgroundColor: colors.black[500],
+        border: `1px solid ${colors.grey[500]}`,
+      }}
     >
       {children}
     </div>
@@ -34,6 +37,9 @@ const GridSection = ({ cols, className = "", children }) => {
 };
 
 const Layout = ({ sections }) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
   const renderSection = (section, index) => {
     if (section.type === "grid") {
       return (
@@ -59,7 +65,7 @@ const Layout = ({ sections }) => {
   };
 
   return (
-    <div className="p-4 ">
+    <div className="p-4">
       <div className="p-4 space-y-4">
         {sections.map((section, index) => renderSection(section, index))}
       </div>

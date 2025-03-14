@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { User } = require("./models/userModel");
+const Athlete = require("./models/athleteModel");
 const connectDB = require("./config/db.js");
 
 connectDB();
@@ -42,6 +43,96 @@ function generateRandomDOB(startYear = 1980, endYear = 2000) {
   return new Date(year, month, day).toISOString().split("T")[0]; // returns in YYYY-MM-DD format
 }
 
+// Function to create Athletes
+const createAthletes = async () => {
+  try {
+    const admin = await User.findOne({ role: "Admin" });
+    if (!admin) {
+      console.log("Admin not found. Please create an admin first.");
+      return;
+    }
+
+    // First, delete existing athletes
+    // await Athlete.deleteMany({});
+    // console.log("Existing athletes deleted");
+
+    const athletes = [
+      {
+        firstName: "Mohammed",
+        lastName: "Ali",
+        idNumber: "196501010001",
+        dateOfBirth: new Date("1942-01-17"),
+        event: "Boxing",
+        description:
+          "Legendary heavyweight boxer known for his quick footwork and powerful punches.",
+        image: "uploads/athlete-images/mohammed-ali.jpg",
+        createdBy: admin._id,
+      },
+      {
+        firstName: "Usain",
+        lastName: "Bolt",
+        idNumber: "198608210002",
+        dateOfBirth: new Date("1986-08-21"),
+        event: "Sprint",
+        description:
+          "World record holder in 100m and 200m sprints. Known as the fastest man in history.",
+        image: "uploads/athlete-images/usain-bolt.jpg",
+        createdBy: admin._id,
+      },
+      {
+        firstName: "Simone",
+        lastName: "Biles",
+        idNumber: "199703140003",
+        dateOfBirth: new Date("1997-03-14"),
+        event: "Gymnastics",
+        description:
+          "Most decorated gymnast in World Championship history with 25 medals.",
+        image: "uploads/athlete-images/simone-biles.jpg",
+        createdBy: admin._id,
+      },
+      {
+        firstName: "Lionel",
+        lastName: "Messi",
+        idNumber: "198706240004",
+        dateOfBirth: new Date("1987-06-24"),
+        event: "Football",
+        description:
+          "Eight-time Ballon d'Or winner and considered one of the greatest footballers of all time.",
+        image: "uploads/athlete-images/lionel-messi.jpg",
+        createdBy: admin._id,
+      },
+      {
+        firstName: "Serena",
+        lastName: "Williams",
+        idNumber: "198109260005",
+        dateOfBirth: new Date("1981-09-26"),
+        event: "Tennis",
+        description:
+          "23-time Grand Slam singles champion and former world No. 1 tennis player.",
+        image: "uploads/athlete-images/serena-williams.jpg",
+        createdBy: admin._id,
+      },
+      {
+        firstName: "Michael",
+        lastName: "Phelps",
+        idNumber: "198506300006",
+        dateOfBirth: new Date("1985-06-30"),
+        event: "Swimming",
+        description:
+          "Most decorated Olympian of all time with 28 medals, including 23 gold medals.",
+        image: "uploads/athlete-images/michael-phelps.jpg",
+        createdBy: admin._id,
+      },
+    ];
+
+    const createdAthletes = await Athlete.insertMany(athletes);
+    console.log("Athletes created successfully");
+    return createdAthletes;
+  } catch (error) {
+    console.error("Error creating athletes:", error);
+  }
+};
+
 // Function to delete all users
 const deleteAllUsers = async () => {
   try {
@@ -55,5 +146,6 @@ const deleteAllUsers = async () => {
 };
 
 // Uncomment the relevant function call as needed
-createAdmin();
+// createAdmin();
 // deleteAllUsers();
+createAthletes();

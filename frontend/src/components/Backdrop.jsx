@@ -14,15 +14,19 @@ const Backdrop = ({ isOpen }) => {
     <MuiBackdrop
       open={isOpen}
       sx={{
-        color: colors.accent.default,
+        color: colors.yellow[500],
         zIndex: (theme) => theme.zIndex.drawer + 1,
+        backgroundColor: `${colors.black[500]}CC`,
       }}
     >
       <div
         className="p-8 rounded-lg flex items-center justify-center"
-        style={{ backgroundColor: colors.primary.light }}
+        style={{
+          backgroundColor: colors.black[400],
+          border: `1px solid ${colors.grey[500]}`,
+        }}
       >
-        <l-helix size="45" speed="2.5" color={colors.accent.default}></l-helix>
+        <l-helix size="45" speed="2.5" color={colors.yellow[500]}></l-helix>
       </div>
     </MuiBackdrop>
   );

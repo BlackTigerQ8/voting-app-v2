@@ -22,10 +22,10 @@ const PieChart = () => {
   const colors = tokens(theme.palette.mode);
 
   const COLORS = [
-    colors.primary.default,
-    colors.primary.light,
-    colors.secondary.default,
-    colors.accent.default,
+    colors.yellow[500],
+    colors.grey[500],
+    colors.black[500],
+    colors.grey[400],
   ];
 
   return (
@@ -37,15 +37,24 @@ const PieChart = () => {
           cy="50%"
           labelLine={false}
           outerRadius={60}
-          fill={colors.primary.default}
+          fill={colors.yellow[500]}
           dataKey="value"
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip />
-        <Legend />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: colors.black[500],
+            border: `1px solid ${colors.grey[500]}`,
+          }}
+        />
+        <Legend
+          formatter={(value) => (
+            <span style={{ color: colors.white[500] }}>{value}</span>
+          )}
+        />
       </RechartsPieChart>
     </ResponsiveContainer>
   );

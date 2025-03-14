@@ -18,6 +18,7 @@ i18n
           // Login/Auth related
           login: "Login",
           signup: "Sign Up",
+          registerAthlete: "Register Athlete",
           loading: "Loading...",
           emailOrPhone: "Email or Phone",
           emailOrPhone_placeholder: "Enter email or phone",
@@ -37,6 +38,10 @@ i18n
           confirm_password: "Confirm Password",
           creatingUser: "Creating Account...",
           upload_id_image: "Upload ID Image",
+          dateOfBirth: "Date of Birth",
+          event: "Event",
+          description: "Description",
+          image: "Image",
 
           // Validation messages
           firstNameRequired: "First name is required",
@@ -53,6 +58,11 @@ i18n
           idNumberFormat: "ID number must be 12 digits",
           passwordMinLength: "Password must be at least 6 characters",
           passwordsMustMatch: "Passwords must match",
+          dateOfBirthRequired: "Date of birth is required",
+          eventRequired: "Event is required",
+          descriptionRequired: "Description is required",
+          imageRequired: "Image is required",
+          invalidIdNumber: "Invalid ID number format",
 
           // Existence checks
           phoneAlreadyExists: "Phone number already exists",
@@ -67,17 +77,18 @@ i18n
 
           // Navigation/Sidebar
           dashboard: "Dashboard",
-          kanban: "Kanban",
-          inbox: "Inbox",
           users: "Users",
-          products: "Products",
+          athletes: "Athletes",
+          voters: "Users (Voters)",
 
           // User roles
           SuperAdmin: "Super Admin",
-          admin: "Administrator",
+          Admin: "Admin",
+          admin: "Admin",
           user: "User",
           guest: "Guest",
           Voter: "Voter",
+
           // Logout
           logoutConfirmationTitle: "Confirm Logout",
           logoutConfirmationMessage: "Are you sure you want to logout?",
@@ -95,6 +106,28 @@ i18n
           // ID Image
           idImageFulfilled: "ID image uploaded successfully",
           idImageRejected: "Failed to upload ID image",
+
+          // Add missing translations
+          editProfile: "Edit Profile",
+          saveChanges: "Save Changes",
+          cancel: "Cancel",
+          noImageAvailable: "No Image Available",
+          uploadImage: "Upload Image",
+          createAthlete: "Create Athlete",
+          athleteUpdated: "Athlete updated successfully",
+          errorUpdatingAthlete: "Error updating athlete",
+          athleteNotFound: "Athlete not found",
+          errorLoadingAthlete: "Error loading athlete",
+          deleteAthlete: "Delete Athlete",
+          deleteAthleteConfirmation:
+            "Are you sure you want to delete this athlete?",
+          validationError: "Validation Error",
+          name: "Name",
+          actions: "Actions",
+          deleteUser: "Delete User",
+          deleteUserConfirmation: "Are you sure you want to delete this user?",
+          confirm: "Confirm",
+          editAthlete: "Edit Athlete",
         },
       },
       ar: {
@@ -102,6 +135,7 @@ i18n
           // Login/Auth related
           login: "تسجيل الدخول",
           signup: "إنشاء حساب",
+          registerAthlete: "تسجيل لاعب جديد",
           loading: "جاري التحميل...",
           emailOrPhone: "البريد الإلكتروني أو الهاتف",
           emailOrPhone_placeholder: "أدخل البريد الإلكتروني أو الهاتف",
@@ -121,6 +155,10 @@ i18n
           confirm_password: "تأكيد كلمة المرور",
           creatingUser: "جاري إنشاء الحساب...",
           upload_id_image: "تحميل صورة الهوية",
+          dateOfBirth: "تاريخ الميلاد",
+          event: "الإختصاص",
+          description: "الوصف",
+          image: "الصورة",
 
           // Validation messages
           firstNameRequired: "الاسم الأول مطلوب",
@@ -137,6 +175,11 @@ i18n
           idNumberFormat: "يجب أن يتكون رقم الهوية من 12 رقم",
           passwordMinLength: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
           passwordsMustMatch: "كلمات المرور غير متطابقة",
+          dateOfBirthRequired: "تاريخ الميلاد مطلوب",
+          eventRequired: "الإختصاص مطلوب",
+          descriptionRequired: "الوصف مطلوب",
+          imageRequired: "الصورة مطلوبة",
+          invalidIdNumber: "صيغة رقم الهوية غير صحيحة",
 
           // Existence checks
           phoneAlreadyExists: "رقم الهاتف مستخدم بالفعل",
@@ -151,13 +194,13 @@ i18n
 
           // Navigation/Sidebar
           dashboard: "لوحة التحكم",
-          kanban: "كانبان",
-          inbox: "صندوق الوارد",
           users: "المستخدمون",
-          products: "المنتجات",
+          athletes: "اللاعبون المرشحون",
+          voters: "المستخدمون (المصوتون)",
 
           // User roles
           SuperAdmin: "مدير النظام",
+          Admin: "إداري",
           admin: "إداري",
           user: "مستخدم",
           guest: "زائر",
@@ -165,7 +208,7 @@ i18n
 
           // Logout
           logoutConfirmationTitle: "تأكيد تسجيل الخروج",
-          logoutConfirmationMessage: "هل أنت متأكد من تسجيل الخروج؟",
+          logoutConfirmationMessage: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
 
           // Messages
           messageSent: "تم إرسال الرسالة بنجاح",
@@ -180,6 +223,27 @@ i18n
           // ID Image
           idImageFulfilled: "تم رفع صورة الهوية بنجاح",
           idImageRejected: "فشل في رفع صورة الهوية",
+
+          // Add missing translations
+          editProfile: "تعديل الملف الشخصي",
+          saveChanges: "حفظ التغييرات",
+          cancel: "إلغاء",
+          noImageAvailable: "لا توجد صورة متاحة",
+          uploadImage: "تحميل صورة",
+          createAthlete: "إنشاء لاعب",
+          athleteUpdated: "تم تحديث اللاعب بنجاح",
+          errorUpdatingAthlete: "خطأ في تحديث اللاعب",
+          athleteNotFound: "اللاعب غير موجود",
+          errorLoadingAthlete: "خطأ في تحميل اللاعب",
+          deleteAthlete: "حذف اللاعب",
+          deleteAthleteConfirmation: "هل أنت متأكد أنك تريد حذف هذا اللاعب؟",
+          validationError: "خطأ في التحقق",
+          name: "الاسم",
+          actions: "الإجراءات",
+          deleteUser: "حذف المستخدم",
+          deleteUserConfirmation: "هل أنت متأكد أنك تريد حذف هذا المستخدم؟",
+          confirm: "تأكيد",
+          editAthlete: "تعديل اللاعب",
         },
       },
     },

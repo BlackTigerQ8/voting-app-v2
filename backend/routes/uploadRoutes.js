@@ -29,10 +29,24 @@ const images = multer.diskStorage({
   },
 });
 
+const athleteImages = multer.diskStorage({
+  destination: "./uploads/athlete-images",
+  filename(req, file, cb) {
+    cb(null, getUploadFileName(file));
+  },
+});
+
 ///// INSTANCES /////
 // Image upload instance
 const profileImageUpload = multer({
   storage: images,
+  fileFilter: function (req, file, cb) {
+    checkImageFileType(file, cb, "images");
+  },
+});
+
+const athleteImageUpload = multer({
+  storage: athleteImages,
   fileFilter: function (req, file, cb) {
     checkImageFileType(file, cb, "images");
   },
@@ -127,4 +141,5 @@ router.post(
 module.exports = {
   router,
   profileImageUpload,
+  athleteImageUpload,
 };

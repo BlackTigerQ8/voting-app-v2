@@ -149,7 +149,8 @@ const Login = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              backgroundColor: colors.primary.light,
+              backgroundColor: colors.black[500],
+              border: `1px solid ${colors.grey[500]}`,
               mt: 8,
             }}
           >
@@ -166,7 +167,7 @@ const Login = () => {
               <Typography
                 component="h1"
                 variant="h4"
-                sx={{ color: colors.primary.default }}
+                sx={{ color: colors.yellow[500] }}
               >
                 {t("login")}
               </Typography>
@@ -179,7 +180,7 @@ const Login = () => {
                   "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
                 }}
               >
-                <TranslateIcon sx={{ color: colors.primary.default }} />
+                <TranslateIcon sx={{ color: colors.yellow[500] }} />
               </IconButton>
               <MuiMenu
                 anchorEl={languageAnchor}
@@ -199,7 +200,7 @@ const Login = () => {
                     overflow: "visible",
                     filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
                     mt: 1.5,
-                    backgroundColor: colors.primary.light,
+                    backgroundColor: colors.yellow[100],
                   },
                 }}
               >
@@ -208,7 +209,7 @@ const Login = () => {
                     key={lang.code}
                     onClick={() => handleLanguageSelect(lang.code)}
                     sx={{
-                      color: colors.primary.default,
+                      color: colors.yellow[500],
                       "&:hover": {
                         backgroundColor: "rgba(255, 255, 255, 0.1)",
                       },
@@ -219,7 +220,7 @@ const Login = () => {
                     </ListItemIcon>
                     <ListItemText primary={lang.name} />
                     {i18n.language === lang.code && (
-                      <CheckIcon sx={{ ml: 1, color: colors.accent.default }} />
+                      <CheckIcon sx={{ ml: 1, color: colors.yellow[300] }} />
                     )}
                   </MenuItem>
                 ))}
@@ -246,18 +247,25 @@ const Login = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PersonOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <PersonOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    color: colors.white[500],
                   },
                 }}
               />
@@ -279,18 +287,25 @@ const Login = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <LockOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    color: colors.white[500],
                   },
                 }}
               />
@@ -302,9 +317,10 @@ const Login = () => {
                 sx={{
                   mt: 3,
                   mb: 2,
-                  backgroundColor: colors.accent.default,
+                  backgroundColor: colors.yellow[500],
+                  color: colors.black[500],
                   "&:hover": {
-                    backgroundColor: colors.accent.dark,
+                    backgroundColor: colors.yellow[600],
                   },
                 }}
                 disabled={isLoading}
@@ -316,7 +332,7 @@ const Login = () => {
                 <Link
                   to="/signup"
                   style={{
-                    color: colors.accent.default,
+                    color: colors.yellow[500],
                     textDecoration: "none",
                   }}
                 >

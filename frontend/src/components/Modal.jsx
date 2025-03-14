@@ -22,10 +22,11 @@ const Modal = ({ open, onClose, onConfirm, title, message }) => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: 400,
-          bgcolor: colors.primary.light,
+          bgcolor: colors.black[500],
           borderRadius: 2,
           boxShadow: 24,
           p: 4,
+          border: `1px solid ${colors.grey[500]}`,
         }}
         component={motion.div}
         initial={{ opacity: 0, y: -20 }}
@@ -36,13 +37,13 @@ const Modal = ({ open, onClose, onConfirm, title, message }) => {
           id="modal-title"
           variant="h6"
           component="h2"
-          sx={{ color: colors.primary.default, mb: 2 }}
+          sx={{ color: colors.yellow[500], mb: 2 }}
         >
           {title}
         </Typography>
         <Typography
           id="modal-description"
-          sx={{ color: colors.secondary.default, mb: 3 }}
+          sx={{ color: colors.yellow[500], mb: 2 }}
         >
           {message}
         </Typography>
@@ -50,9 +51,9 @@ const Modal = ({ open, onClose, onConfirm, title, message }) => {
           <Button
             onClick={onClose}
             sx={{
-              color: colors.primary.default,
+              color: colors.grey[500],
               "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                backgroundColor: `${colors.grey[500]}20`,
               },
             }}
           >
@@ -61,10 +62,10 @@ const Modal = ({ open, onClose, onConfirm, title, message }) => {
           <Button
             onClick={onConfirm}
             sx={{
-              backgroundColor: colors.accent.default,
-              color: colors.background.default,
+              backgroundColor: colors.yellow[500],
+              color: colors.black[500],
               "&:hover": {
-                backgroundColor: colors.accent.dark,
+                backgroundColor: colors.yellow[600],
               },
             }}
           >

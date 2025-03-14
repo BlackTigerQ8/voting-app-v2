@@ -7,13 +7,14 @@ import GroupIcon from "@mui/icons-material/Group";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonIcon from "@mui/icons-material/Person";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { tokens } from "../../theme";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-
+import { Typography } from "@mui/material";
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
@@ -31,48 +32,22 @@ const Sidebar = () => {
           path: "/",
         },
         {
-          id: 2,
-          title: t("kanban"),
-          icon: <ViewKanbanIcon />,
-          path: "/kanban",
-          badge: {
-            text: "Pro",
-            variant: "gray", // custom badge style
-          },
-        },
-        {
-          id: 3,
-          title: t("inbox"),
-          icon: <InboxIcon />,
-          path: "/inbox",
-          badge: {
-            text: "3",
-            variant: "blue", // custom badge style
-          },
-        },
-        {
           id: 4,
-          title: t("users"),
+          title: t("voters"),
           icon: <GroupIcon />,
           path: "/users",
         },
         {
-          id: 5,
-          title: t("products"),
-          icon: <ShoppingCartIcon />,
-          path: "/products",
-        },
-        {
-          id: 6,
-          title: t("login"),
-          icon: <LoginIcon />,
-          path: "/signin",
-        },
-        {
           id: 7,
-          title: t("signup"),
+          title: t("registerAthlete"),
           icon: <PersonAddIcon />,
-          path: "/signup",
+          path: "/athlete-form",
+        },
+        {
+          id: 8,
+          title: t("athletes"),
+          icon: <ViewKanbanIcon />,
+          path: "/athletes",
         },
       ]
     : [
@@ -151,12 +126,12 @@ const Sidebar = () => {
 
     const badgeColors = {
       gray: {
-        bg: colors.primary.light,
-        text: colors.primary.default,
+        bg: colors.grey[100],
+        text: colors.yellow[500],
       },
       blue: {
-        bg: colors.accent.default,
-        text: colors.background.default,
+        bg: colors.yellow[500],
+        text: colors.black[500],
       },
     };
 
@@ -187,11 +162,11 @@ const Sidebar = () => {
           color={`${
             isOpen
               ? theme.palette.mode === "light"
-                ? colors.background.default
-                : colors.primary.default
+                ? colors.white[500]
+                : colors.yellow[500]
               : theme.palette.mode === "light"
-              ? colors.primary.default
-              : colors.background.default
+              ? colors.yellow[500]
+              : colors.white[500]
           }`}
           toggled={isOpen}
           toggle={setIsOpen}
@@ -205,10 +180,8 @@ const Sidebar = () => {
         } sm:translate-x-0`}
         aria-label="Sidebar"
         style={{
-          backgroundColor:
-            theme.palette.mode === "dark"
-              ? colors.primary.light
-              : colors.primary.default,
+          backgroundColor: colors.black[500],
+          borderRight: `1px solid ${colors.grey[500]}`,
         }}
         variants={containerVariants}
       >
@@ -220,9 +193,15 @@ const Sidebar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <h2 className="text-2xl mb-10 font-bold text-center">
+              <Typography
+                variant="h6"
+                sx={{
+                  color: colors.yellow[500],
+                  fontWeight: 600,
+                }}
+              >
                 {currentUser ? t(currentUser.role) : "Guest"}
-              </h2>
+              </Typography>
               <motion.ul
                 className="space-y-2 font-medium pt-14 sm:pt-0"
                 initial="closed"
@@ -239,6 +218,7 @@ const Sidebar = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: link.id * 0.1 }}
                     >
+                      {/* Links */}
                       <Link to={link.path} variants={linkVariants}>
                         <motion.div
                           className={`flex items-center p-2 rounded-lg group relative ${
@@ -246,29 +226,32 @@ const Sidebar = () => {
                           }`}
                           whileHover={{ scale: 1.02, x: 5 }}
                           style={{
+                            backgroundColor: isActive
+                              ? `${colors.grey[500]}40`
+                              : "transparent",
                             color: isActive
-                              ? colors.accent.default
-                              : theme.palette.mode === "dark"
-                              ? colors.primary.default
-                              : colors.background.default,
+                              ? colors.yellow[500]
+                              : colors.white[500],
                           }}
                         >
+                          {/* Active indicator */}
                           {isActive && (
                             <motion.div
                               className="absolute left-0 w-1 h-full rounded-r"
                               layoutId={`activeIndicator-${link.id}`}
-                              style={{ backgroundColor: colors.accent.default }}
+                              style={{
+                                backgroundColor: colors.yellow[500],
+                              }}
                             />
                           )}
+                          {/* Icons */}
                           <div className="flex items-center min-w-[24px]">
                             <span
                               className="w-5 h-5 transition duration-75"
                               style={{
                                 color: isActive
-                                  ? colors.accent.default
-                                  : theme.palette.mode === "dark"
-                                  ? colors.primary.default
-                                  : colors.background.default,
+                                  ? colors.yellow[500]
+                                  : colors.white[500],
                               }}
                             >
                               {link.icon}
@@ -279,10 +262,8 @@ const Sidebar = () => {
                             className="flex-1 ms-3 whitespace-nowrap font-semibold"
                             style={{
                               color: isActive
-                                ? colors.accent.default
-                                : theme.palette.mode === "dark"
-                                ? colors.primary.default
-                                : colors.background.default,
+                                ? colors.yellow[500]
+                                : colors.white[500],
                             }}
                           >
                             {link.title}

@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const userRouter = require("./routes/userRoutes");
 const path = require("path");
+const userRouter = require("./routes/userRoutes");
+const athleteRouter = require("./routes/athleteRoutes");
 
 const app = express();
 app.use(cors());
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", userRouter);
+app.use("/api/athletes", athleteRouter);
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 
 module.exports = app;

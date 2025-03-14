@@ -27,22 +27,19 @@ const BarChart = () => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <RechartsBarChart
-        data={data}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
+      <RechartsBarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke={colors.grey[500]} />
+        <XAxis dataKey="name" stroke={colors.white[500]} />
+        <YAxis stroke={colors.white[500]} />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: colors.black[500],
+            border: `1px solid ${colors.grey[500]}`,
+          }}
+        />
         <Legend />
-        <Bar dataKey="pv" fill={colors.primary.default} />
-        <Bar dataKey="uv" fill={colors.accent.default} />
+        <Bar dataKey="pv" fill={colors.yellow[500]} />
+        <Bar dataKey="uv" fill={colors.grey[500]} />
       </RechartsBarChart>
     </ResponsiveContainer>
   );

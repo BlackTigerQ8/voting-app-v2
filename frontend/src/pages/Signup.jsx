@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { tokens } from "../../theme";
-import { registerUser, initiateRegistration } from "../redux/userSlice";
+import {
+  registerUser,
+  initiateRegistration,
+  cleanupTempUser,
+} from "../redux/userSlice";
 import { useTranslation } from "react-i18next";
 import Backdrop from "../components/Backdrop";
 import { useFormik } from "formik";
@@ -143,7 +147,17 @@ const Signup = () => {
       .string()
       .oneOf([yup.ref("password"), null], t("passwordsMustMatch"))
       .required(t("confirmPasswordRequired")),
-    idImage: yup.mixed().required(t("idImageRequired")),
+    idImage: yup
+      .mixed()
+      .required(t("idImageRequired"))
+      .test("fileSize", t("fileTooLarge"), (value) => {
+        return value && value.size <= 2000000; // Example: max 2MB
+      })
+      .test("fileType", t("unsupportedFormat"), (value) => {
+        return (
+          value && ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
+        );
+      }),
   });
 
   const formik = useFormik({
@@ -190,6 +204,27 @@ const Signup = () => {
     formik.setFieldValue("idImage", event.currentTarget.files[0]);
   };
 
+  useEffect(() => {
+    return () => {
+      if (tempUserId) {
+        dispatch(cleanupTempUser(tempUserId));
+      }
+    };
+  }, [tempUserId, dispatch]);
+
+  // Update the OTP dialog close handler
+  const handleOTPDialogClose = async () => {
+    if (tempUserId) {
+      try {
+        await dispatch(cleanupTempUser(tempUserId)).unwrap();
+      } catch (error) {
+        console.error("Failed to cleanup temporary user:", error);
+      }
+    }
+    setShowOTPDialog(false);
+    setTempUserId(null);
+  };
+
   return (
     <>
       <Backdrop isOpen={isLoading} />
@@ -206,7 +241,8 @@ const Signup = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              backgroundColor: colors.primary.light,
+              backgroundColor: colors.black[500],
+              border: `1px solid ${colors.grey[500]}`,
               mt: 8,
               mb: 8,
             }}
@@ -224,7 +260,7 @@ const Signup = () => {
               <Typography
                 component="h1"
                 variant="h4"
-                sx={{ color: colors.primary.default }}
+                sx={{ color: colors.yellow[500] }}
               >
                 {t("login")}
               </Typography>
@@ -233,11 +269,11 @@ const Signup = () => {
                 sx={{
                   position: "absolute",
                   right: 0,
-                  backgroundColor: "transparent",
-                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  color: colors.white[500],
+                  "&:hover": { backgroundColor: `${colors.grey[500]}20` },
                 }}
               >
-                <TranslateIcon sx={{ color: colors.primary.default }} />
+                <TranslateIcon sx={{ color: colors.yellow[500] }} />
               </IconButton>
               <MuiMenu
                 anchorEl={languageAnchor}
@@ -254,10 +290,8 @@ const Signup = () => {
                 PaperProps={{
                   elevation: 0,
                   sx: {
-                    overflow: "visible",
-                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                    mt: 1.5,
-                    backgroundColor: colors.primary.light,
+                    backgroundColor: colors.black[500],
+                    border: `1px solid ${colors.grey[500]}`,
                   },
                 }}
               >
@@ -266,9 +300,9 @@ const Signup = () => {
                     key={lang.code}
                     onClick={() => handleLanguageSelect(lang.code)}
                     sx={{
-                      color: colors.primary.default,
+                      color: colors.white[500],
                       "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        backgroundColor: `${colors.grey[500]}20`,
                       },
                     }}
                   >
@@ -277,7 +311,7 @@ const Signup = () => {
                     </ListItemIcon>
                     <ListItemText primary={lang.name} />
                     {i18n.language === lang.code && (
-                      <CheckIcon sx={{ ml: 1, color: colors.accent.default }} />
+                      <CheckIcon sx={{ ml: 1, color: colors.yellow[500] }} />
                     )}
                   </MenuItem>
                 ))}
@@ -306,17 +340,27 @@ const Signup = () => {
                       startAdornment: (
                         <InputAdornment position="start">
                           <PersonOutlinedIcon
-                            sx={{ color: colors.primary.default }}
+                            sx={{ color: colors.yellow[500] }}
                           />
                         </InputAdornment>
                       ),
                     }}
                     sx={{
-                      backgroundColor: colors.background.default,
                       "& .MuiOutlinedInput-root": {
+                        backgroundColor: colors.black[400],
+                        color: colors.white[500],
                         "& fieldset": {
-                          borderColor: colors.primary.default,
+                          borderColor: colors.grey[500],
                         },
+                        "&:hover fieldset": {
+                          borderColor: colors.yellow[500],
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: colors.yellow[500],
+                        },
+                      },
+                      "& .MuiFormHelperText-root": {
+                        color: colors.yellow[500],
                       },
                     }}
                   />
@@ -340,17 +384,27 @@ const Signup = () => {
                       startAdornment: (
                         <InputAdornment position="start">
                           <PersonOutlinedIcon
-                            sx={{ color: colors.primary.default }}
+                            sx={{ color: colors.yellow[500] }}
                           />
                         </InputAdornment>
                       ),
                     }}
                     sx={{
-                      backgroundColor: colors.background.default,
                       "& .MuiOutlinedInput-root": {
+                        backgroundColor: colors.black[400],
+                        color: colors.white[500],
                         "& fieldset": {
-                          borderColor: colors.primary.default,
+                          borderColor: colors.grey[500],
                         },
+                        "&:hover fieldset": {
+                          borderColor: colors.yellow[500],
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: colors.yellow[500],
+                        },
+                      },
+                      "& .MuiFormHelperText-root": {
+                        color: colors.yellow[500],
                       },
                     }}
                   />
@@ -372,18 +426,26 @@ const Signup = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <EmailOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <EmailOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
+                    color: colors.white[500],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiFormHelperText-root": {
+                    color: colors.yellow[500],
                   },
                 }}
               />
@@ -403,18 +465,26 @@ const Signup = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PhoneOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <PhoneOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
+                    color: colors.white[500],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiFormHelperText-root": {
+                    color: colors.yellow[500],
                   },
                 }}
               />
@@ -436,18 +506,26 @@ const Signup = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <BadgeOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <BadgeOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
+                    color: colors.white[500],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiFormHelperText-root": {
+                    color: colors.yellow[500],
                   },
                 }}
               />
@@ -470,18 +548,26 @@ const Signup = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <LockOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
+                    color: colors.white[500],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiFormHelperText-root": {
+                    color: colors.yellow[500],
                   },
                 }}
               />
@@ -507,18 +593,26 @@ const Signup = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOutlinedIcon
-                        sx={{ color: colors.primary.default }}
-                      />
+                      <LockOutlinedIcon sx={{ color: colors.yellow[500] }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  backgroundColor: colors.background.default,
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: colors.black[400],
+                    color: colors.white[500],
                     "& fieldset": {
-                      borderColor: colors.primary.default,
+                      borderColor: colors.grey[500],
                     },
+                    "&:hover fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.yellow[500],
+                    },
+                  },
+                  "& .MuiFormHelperText-root": {
+                    color: colors.yellow[500],
                   },
                 }}
               />
@@ -530,9 +624,9 @@ const Signup = () => {
                 fullWidth
                 sx={{
                   mt: 2,
-                  mb: 2,
-                  borderColor: colors.primary.default,
-                  color: colors.primary.default,
+                  mb: 1,
+                  borderColor: colors.yellow[500],
+                  color: colors.yellow[500],
                 }}
               >
                 {t("upload_id_image")}
@@ -543,9 +637,9 @@ const Signup = () => {
                   onChange={handleFileChange}
                 />
               </Button>
-              {formik.values.idImage && (
-                <Typography variant="body2" sx={{ mb: 2 }}>
-                  {formik.values.idImage.name}
+              {formik.touched.idImage && formik.errors.idImage && (
+                <Typography variant="body2" color="error" sx={{ ml: 2 }}>
+                  {formik.errors.idImage}
                 </Typography>
               )}
 
@@ -556,9 +650,13 @@ const Signup = () => {
                 sx={{
                   mt: 3,
                   mb: 2,
-                  backgroundColor: colors.accent.default,
+                  backgroundColor: colors.yellow[500],
+                  color: colors.black[500],
                   "&:hover": {
-                    backgroundColor: colors.accent.dark,
+                    backgroundColor: colors.yellow[600],
+                  },
+                  "&:disabled": {
+                    backgroundColor: colors.grey[500],
                   },
                 }}
                 disabled={isLoading}
@@ -570,7 +668,7 @@ const Signup = () => {
                 <Link
                   to="/login"
                   style={{
-                    color: colors.accent.default,
+                    color: colors.yellow[500],
                     textDecoration: "none",
                   }}
                 >
@@ -586,7 +684,7 @@ const Signup = () => {
       <OTPVerification
         open={showOTPDialog}
         tempUserId={tempUserId}
-        onClose={() => setShowOTPDialog(false)}
+        onClose={handleOTPDialogClose}
       />
     </>
   );
